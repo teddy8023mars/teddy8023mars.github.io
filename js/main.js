@@ -48,6 +48,19 @@ const PROJECTS = {
     link: null,
     lockNote: 'Source private — it trades a real account. Happy to walk through the architecture.',
   },
+  skinlesion: {
+    kicker: 'deep learning · medical imaging',
+    title: 'Skin Lesion Analysis',
+    sub: 'U-Net segmentation + EfficientNet classification',
+    desc: 'Automated dermoscopy analysis in two stages: a U-Net that segments the lesion region pixel-by-pixel, then an EfficientNet that classifies the lesion type — aimed at assisting early skin-cancer diagnosis.',
+    points: [
+      'U-Net encoder–decoder with skip connections for pixel-level segmentation',
+      'EfficientNet transfer learning for multi-class lesion classification',
+      'Full pipeline in reproducible notebooks: preprocessing → training → evaluation',
+    ],
+    stack: ['Python', 'U-Net', 'EfficientNet', 'Jupyter'],
+    link: 'https://github.com/teddy8023mars/Skin-lesion-classification',
+  },
   leetcode: {
     kicker: 'full-stack web',
     title: 'LeetCode Tracker',
@@ -324,11 +337,54 @@ const wb = canvasTexture(512, 360, (ctx, w, h) => {
   ctx.fillStyle = '#d96e5a'; ctx.font = 'bold 30px monospace'; ctx.fillText('LC 75 ✓', 360, 60);
   ctx.fillStyle = '#5a7fd6'; ctx.font = 'bold 24px monospace'; ctx.fillText('O(n log n)', 60, 340);
 });
-const boardMat = new THREE.MeshStandardMaterial({ map: wb.texture, roughness: 0.85 });
+const boardMat = new THREE.MeshStandardMaterial({ map: wb.texture, emissive: 0xffffff, emissiveMap: wb.texture, emissiveIntensity: 0.15, roughness: 0.85 });
 const board = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.7), boardMat);
 board.rotation.y = Math.PI / 2;
 board.position.set(-5.28, 2.7, -1.6);
 room.add(board);
+
+// ── dermoscopy scan frame (Skin Lesion Analysis) on -x wall ─────
+const scanFrame = box(0.1, 1.35, 1.75, mat(0x8a6a3e));
+scanFrame.position.set(-5.38, 2.75, 0.55);
+room.add(scanFrame);
+const scan = canvasTexture(512, 384, (ctx, w, h) => {
+  // dermoscopy plate: skin field + lesion + segmentation outline
+  ctx.fillStyle = '#e8c4a8'; ctx.fillRect(0, 0, w, h);
+  for (let i = 0; i < 40; i++) {                     // skin texture noise
+    ctx.fillStyle = `rgba(180,120,90,${0.05 + (i % 5) * 0.012})`;
+    const x = (i * 197) % w, y = (i * 311) % h;
+    ctx.beginPath(); ctx.arc(x, y, 8 + (i % 4) * 5, 0, Math.PI * 2); ctx.fill();
+  }
+  // lesion blob (irregular)
+  ctx.fillStyle = '#5a3a2e';
+  ctx.beginPath();
+  ctx.moveTo(200, 140);
+  ctx.bezierCurveTo(280, 100, 350, 140, 340, 210);
+  ctx.bezierCurveTo(330, 280, 240, 300, 190, 260);
+  ctx.bezierCurveTo(150, 225, 150, 170, 200, 140);
+  ctx.fill();
+  ctx.fillStyle = '#3e2620';
+  ctx.beginPath(); ctx.arc(265, 200, 38, 0, Math.PI * 2); ctx.fill();
+  // U-Net segmentation outline (dashed)
+  ctx.strokeStyle = '#2dd4bf'; ctx.lineWidth = 5; ctx.setLineDash([14, 9]);
+  ctx.beginPath();
+  ctx.moveTo(196, 128);
+  ctx.bezierCurveTo(288, 84, 366, 132, 354, 214);
+  ctx.bezierCurveTo(342, 292, 236, 316, 178, 270);
+  ctx.bezierCurveTo(134, 230, 136, 164, 196, 128);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // labels
+  ctx.fillStyle = '#134e4a'; ctx.font = 'bold 26px monospace';
+  ctx.fillText('U-Net ▸ mask', 24, 40);
+  ctx.font = 'bold 22px monospace'; ctx.fillStyle = '#7c2d12';
+  ctx.fillText('EfficientNet ▸ melanoma 0.87', 24, h - 22);
+});
+const scanMat = new THREE.MeshStandardMaterial({ map: scan.texture, emissive: 0xffffff, emissiveMap: scan.texture, emissiveIntensity: 0.15, roughness: 0.85 });
+const scanPlate = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 1.15), scanMat);
+scanPlate.rotation.y = Math.PI / 2;
+scanPlate.position.set(-5.31, 2.75, 0.55);
+room.add(scanPlate);
 
 // ── bookshelf filler (right of chart screen) ────────────────────
 const shelf = new THREE.Group();
@@ -484,6 +540,7 @@ const targets = [
   { id: 'deskcat', label: 'DeskCat', objects: [catAnchor], focus: { cam: [3.9, 2.7, -0.7], look: [1.75, 2.1, -3.0] } },
   { id: 'tradingbot', label: 'Intraday Trading Bot', objects: [chartFrame, chartScreen], focus: { cam: [-2.1, 3.0, -1.5], look: [-2.1, 2.9, -5.2] } },
   { id: 'leetcode', label: 'LeetCode Tracker', objects: [boardFrame, board], focus: { cam: [-1.6, 2.7, -1.6], look: [-5.3, 2.7, -1.6] } },
+  { id: 'skinlesion', label: 'Skin Lesion Analysis', objects: [scanFrame, scanPlate], focus: { cam: [-2.0, 2.75, 0.55], look: [-5.3, 2.75, 0.55] } },
 ];
 const pickMeshes = [];
 for (const t of targets) {
@@ -610,6 +667,8 @@ function applyTheme(name) {
   stars.visible = name === 'night';
   monScreenMat.emissiveIntensity = 0.35 * t.screenBoost;
   chartMat.emissiveIntensity = 0.6 * t.screenBoost;
+  scanMat.emissiveIntensity = 0.15 * t.screenBoost;
+  boardMat.emissiveIntensity = 0.15 * t.screenBoost;
 }
 themeBtn.addEventListener('click', () => applyTheme(themeName === 'day' ? 'night' : 'day'));
 applyTheme(themeName);
