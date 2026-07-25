@@ -51,14 +51,14 @@ const PROJECTS = {
   skinlesion: {
     kicker: 'deep learning · medical imaging',
     title: 'Skin Lesion Analysis',
-    sub: 'U-Net segmentation + EfficientNet classification',
-    desc: 'Automated dermoscopy analysis in two stages: a U-Net that segments the lesion region pixel-by-pixel, then an EfficientNet that classifies the lesion type — aimed at assisting early skin-cancer diagnosis.',
+    sub: 'ISIC 2018 — segmentation, attributes, classification',
+    desc: 'My first deep learning project: dermoscopy image analysis on the ISIC 2018 challenge. A ResNet50-U-Net segments the lesion boundary (Jaccard 0.79, Dice 0.87), plus a 7-class lesion classifier — with hair-removal preprocessing, an ablation across six encoder backbones, and test-time augmentation.',
     points: [
-      'U-Net encoder–decoder with skip connections for pixel-level segmentation',
-      'EfficientNet transfer learning for multi-class lesion classification',
-      'Full pipeline in reproducible notebooks: preprocessing → training → evaluation',
+      'Encoder ablation: U-Net vs VGG16/VGG19/DenseNet121/ResNet50 backbones and Double U-Net',
+      'Hair-removal preprocessing — dermoscopy images are full of occluding hair',
+      'Class imbalance tackled by resampling; specificity tracked, not just accuracy, because false negatives miss cancer',
     ],
-    stack: ['Python', 'U-Net', 'EfficientNet', 'Jupyter'],
+    stack: ['Python', 'TensorFlow', 'U-Net', 'ResNet50', 'Jupyter'],
     link: 'https://github.com/teddy8023mars/Skin-lesion-classification',
   },
   leetcode: {
@@ -378,7 +378,7 @@ const scan = canvasTexture(512, 384, (ctx, w, h) => {
   ctx.fillStyle = '#134e4a'; ctx.font = 'bold 26px monospace';
   ctx.fillText('U-Net ▸ mask', 24, 40);
   ctx.font = 'bold 22px monospace'; ctx.fillStyle = '#7c2d12';
-  ctx.fillText('EfficientNet ▸ melanoma 0.87', 24, h - 22);
+  ctx.fillText('ISIC 2018 · Jaccard 0.79', 24, h - 22);
 });
 const scanMat = new THREE.MeshStandardMaterial({ map: scan.texture, emissive: 0xffffff, emissiveMap: scan.texture, emissiveIntensity: 0.15, roughness: 0.85 });
 const scanPlate = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 1.15), scanMat);
