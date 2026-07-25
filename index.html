@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teddy's Studio — Ziyu C.</title>
+<meta name="description" content="Interactive 3D portfolio of Ziyu (Teddy) C. — macOS apps, trading systems, and full-stack tools, built with AI agents. Click around the studio.">
+<meta property="og:title" content="Teddy's Studio — an interactive 3D portfolio">
+<meta property="og:description" content="A little low-poly studio you can poke around. The cat watches your cursor.">
+<meta property="og:image" content="https://teddy8023mars.github.io/assets/og.png">
+<meta property="og:url" content="https://teddy8023mars.github.io/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐈</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+
+<!-- ═════════ 3D canvas ═════════ -->
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<!-- ═════════ overlay UI ═════════ -->
+<header id="hud">
+  <div class="who">
+    <h1>Ziyu “Teddy” C.</h1>
+    <p class="tag">Builds real tools with AI agents — macOS apps · trading systems · full-stack</p>
+  </div>
+  <nav class="hud-actions">
+    <button id="themeBtn" title="Toggle day / night" aria-label="Toggle day or night">🌙</button>
+    <button id="textBtn" title="Skip the 3D — plain text version">Text&nbsp;version</button>
+    <a class="gh" href="https://github.com/teddy8023mars" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</header>
+
+<p id="hint">drag to orbit · click an object to inspect · the cat is watching your cursor</p>
+
+<div id="tooltip" role="status"></div>
+
+<!-- ═════════ project panel ═════════ -->
+<aside id="panel" aria-live="polite">
+  <button id="panelClose" aria-label="Close panel">✕</button>
+  <div id="panelBody"></div>
+</aside>
+
+<!-- ═════════ loading ═════════ -->
+<div id="loader">
+  <div class="cat-emoji">🐈</div>
+  <div class="bar"><div id="loaderFill"></div></div>
+  <p>setting up the studio…</p>
+  <button id="loaderSkip" class="ghost">skip → text version</button>
+</div>
+
+<!-- ═════════ text version / fallback ═════════ -->
+<section id="textVersion" aria-label="Plain text portfolio">
+  <div class="tv-inner">
+    <div class="tv-head">
+      <h1>Ziyu “Teddy” C.</h1>
+      <p>Builds real tools with AI agents — macOS apps · trading systems · full-stack.<br>
+         Based in Singapore · <a href="https://github.com/teddy8023mars" target="_blank" rel="noopener">github.com/teddy8023mars</a></p>
+      <button id="tvBack">← back to the 3D studio</button>
+    </div>
+    <div id="tvCards" class="tv-cards">
+      <!-- static fallback content; main.js re-renders these from PROJECTS -->
+      <div class="tv-card"><div class="kicker">macOS app</div><h3>QuickMD</h3>
+        <p>Native macOS Markdown previewer — GFM, Mermaid, LaTeX, dark mode. Swift + AppKit.</p>
+        <a href="https://github.com/teddy8023mars/QuickMD" target="_blank" rel="noopener">View on GitHub ↗</a></div>
+      <div class="tv-card"><div class="kicker">macOS app · 3D</div><h3>DeskCat</h3>
+        <p>A 3D companion on your desktop whose head follows your mouse. SceneKit + procedural SDF modeling.</p>
+        <a href="https://github.com/teddy8023mars/DeskCat" target="_blank" rel="noopener">View on GitHub ↗</a></div>
+      <div class="tv-card"><div class="kicker">trading system</div><h3>Intraday Trading Bot</h3>
+        <p>Deterministic US-equities intraday system on the moomoo API — the LLM never touches the order trigger. TDD, layered risk controls, shadow-mode validation.</p>
+        <span class="lock">🔒 Source private — it trades a real account.</span></div>
+      <div class="tv-card"><div class="kicker">full-stack web</div><h3>LeetCode Tracker</h3>
+        <p>Self-hosted practice platform: bilingual problem sync, study plans, local sandboxed judge, AI tutor. React 19 · tRPC · Drizzle.</p>
+        <a href="https://github.com/teddy8023mars/leetcode-tracker" target="_blank" rel="noopener">View on GitHub ↗</a></div>
+    </div>
+    <footer>
+      <p>This page is a hand-built Three.js scene — no framework, one glTF cat, ~40&nbsp;KB of my own code.
+         The cat is the same model that lives on my desktop in <a href="https://github.com/teddy8023mars/DeskCat" target="_blank" rel="noopener">DeskCat</a>.</p>
+    </footer>
+  </div>
+</section>
+
+<noscript>
+  <style>#loader,#hud,#hint{display:none!important}#textVersion{display:block!important}</style>
+</noscript>
+
+<script>
+// watchdog: if the 3D module never comes up (old browser, broken import), fall back to text
+setTimeout(function () {
+  var l = document.getElementById('loader');
+  if (l && !l.classList.contains('done')) {
+    l.classList.add('done');
+    document.getElementById('textVersion').classList.add('show');
+    var back = document.getElementById('tvBack');
+    if (back) back.style.display = 'none';
+  }
+}, 12000);
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
